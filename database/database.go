@@ -26,19 +26,19 @@ func NewConnection(cfg *config.Config) (*DB, error) {
 
 	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil {
-		return nil, fmt.Errorf("ошибка подключения к базе данных: %w", err)
+		return nil, fmt.Errorf("database connection error: %w", err)
 	}
 
-	// Настройка пула соединений
+	// Connection pool settings
 	db.SetMaxOpenConns(25)
 	db.SetMaxIdleConns(5)
 
-	// Проверка соединения
+	// Connection check
 	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("ошибка ping базы данных: %w", err)
+		return nil, fmt.Errorf("database ping error: %w", err)
 	}
 
-	log.Println("Успешное подключение к базе данных")
+	log.Println("Database connection successful")
 
 	return &DB{db}, nil
 }
@@ -47,7 +47,7 @@ func (db *DB) Close() error {
 	return db.DB.Close()
 }
 
-// InitTables создает необходимые таблицы
+// InitTables creates necessary tables
 func (db *DB) InitTables() error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS users (
@@ -88,10 +88,10 @@ func (db *DB) InitTables() error {
 
 	for _, query := range queries {
 		if _, err := db.Exec(query); err != nil {
-			return fmt.Errorf("ошибка выполнения запроса: %w", err)
+			return fmt.Errorf("query execution error: %w", err)
 		}
 	}
 
-	log.Println("Таблицы базы данных инициализированы")
+	log.Println("Database tables initialized")
 	return nil
 }
