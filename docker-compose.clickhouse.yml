@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: hepic-clickhouse
+    environment:
+      CLICKHOUSE_DB: hepic_analytics
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ""
+    ports:
+      - "9000:9000"
+      - "8123:8123"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./clickhouse/init:/docker-entrypoint-initdb.d
+    networks:
+      - hepic-network
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  hepic-app-server:
+    build: .
+    container_name: hepic-app-server-v2
+    ports:
+      - "8080:8080"
+    environment:
+      # ClickHouse
+      - DB_HOST=clickhouse
+      - DB_PORT=9000
+      - DB_USER=default
+      - DB_PASSWORD=
+      - DB_DATABASE=hepic_analytics
+      - DB_SSLMODE=disable
+      - DB_COMPRESS=true
+      
+      # Server
+      - SERVER_PORT=8080
+      - SERVER_HOST=0.0.0.0
+      
+      # JWT
+      - JWT_SECRET=your-super-secret-jwt-key-here-change-in-production
+      - JWT_EXPIRE_HOURS=24
+      
+      # Logging
+      - LOG_LEVEL=info
+    depends_on:
+      - clickhouse
+    networks:
+      - hepic-network
+
+volumes:
+  clickhouse_data:
+
+networks:
+  hepic-network:
+    driver: bridge

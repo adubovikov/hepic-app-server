@@ -1,0 +1,19 @@
+database:
+  host: localhost
+  port: 9000
+  user: default
+  password: ""
+  database: hepic_analytics
+  sslmode: disable
+  compress: true
+
+server:
+  port: "8080"
+  host: "0.0.0.0"
+
+jwt:
+  secret: "your-super-secret-jwt-key-here-change-in-production"
+  expire_hours: 24
+
+logging:
+  level: info
