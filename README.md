@@ -1,15 +1,18 @@
 # HEPIC App Server v2
 
-Advanced REST API Server based on Echo v4 with PostgreSQL connection and JWT authentication.
+Advanced REST API Server based on Echo v4 with ClickHouse connection and JWT authentication.
 
 ## 🚀 Features
 
 - **REST API** based on Echo v4
-- **PostgreSQL** database with automatic initialization
+- **ClickHouse** database with automatic initialization
 - **JWT authentication** with role-based system
+- **ClickHouse analytics** with advanced querying
+- **Advanced CLI** with Cobra framework
+- **Structured logging** with slog
 - **Swagger documentation** with auto-generation
 - **Middleware** for CORS, logging, security
-- **Docker** support
+- **Docker** support with multi-stage build
 - **Graceful shutdown**
 - **Pagination** and data filtering
 - **Input validation**
@@ -18,7 +21,7 @@ Advanced REST API Server based on Echo v4 with PostgreSQL connection and JWT aut
 ## 📋 Requirements
 
 - Go 1.21+
-- PostgreSQL 12+
+- ClickHouse 22.0+
 - Docker (optional)
 
 ## 🛠 Quick Start
@@ -37,8 +40,8 @@ go mod tidy
 
 3. **Setup database:**
 ```bash
-# Create PostgreSQL database
-createdb hepic_db
+# Start ClickHouse with Docker
+docker run -d --name clickhouse-server -p 9000:9000 -p 8123:8123 clickhouse/clickhouse-server
 ```
 
 4. **Configure environment:**
@@ -51,6 +54,12 @@ cp env.example .env
 ```bash
 make build
 make run
+
+# Or use CLI commands
+./hepic-app-server-v2 serve --jwt-secret "your-secret-key"
+./hepic-app-server-v2 config --validate
+./hepic-app-server-v2 health --verbose
+./hepic-app-server-v2 version --json
 ```
 
 ### Docker Installation
@@ -64,6 +73,9 @@ make docker-run
 
 - **[Main Documentation](docs/README.md)** - Complete setup and usage guide
 - **[Configuration Guide](docs/CONFIG_README.md)** - Configuration with Viper framework
+- **[CLI Documentation](docs/CLI_DOCUMENTATION.md)** - Command line interface guide
+- **[Auth API Documentation](docs/AUTH_API.md)** - Authentication API endpoints
+- **[Slog Middleware](docs/SLOG_MIDDLEWARE.md)** - Structured logging setup
 - **[API Documentation](http://localhost:8080/api/v1/docs/)** - Swagger UI (after server start)
 
 ## 🔧 Configuration
@@ -100,18 +112,13 @@ curl -X GET http://localhost:8080/api/v1/auth/me \
 - `POST /api/v1/auth/logout` - User logout
 - `GET /api/v1/auth/me` - Current user info
 
-### Users
-- `GET /api/v1/users` - List users (with pagination)
-- `GET /api/v1/users/{id}` - Get user by ID
-- `POST /api/v1/users` - Create user (admin only)
-- `PUT /api/v1/users/{id}` - Update user
-- `DELETE /api/v1/users/{id}` - Delete user (admin only)
+### Analytics
+- `GET /api/v1/analytics/stats` - Get analytics statistics
+- `GET /api/v1/analytics/records` - Get analytics records (with filtering and pagination)
 
-### HEP Records
-- `GET /api/v1/hep` - List HEP records (with filtering and pagination)
-- `GET /api/v1/hep/{id}` - Get HEP record by ID
-- `POST /api/v1/hep` - Create HEP record
-- `GET /api/v1/hep/stats` - HEP records statistics
+### User Management (Admin only)
+- `GET /api/v1/auth/users` - List users (with pagination)
+- `GET /api/v1/auth/stats` - User statistics
 
 ## 🐳 Docker
 
