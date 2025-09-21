@@ -55,7 +55,7 @@ func Load() *Config {
 	// Set default values
 	setDefaults()
 
-	// Read configuration из файла (если существует)
+	// Read configuration from file (if exists)
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			log.Println("Config file not found, using defaults and environment variables")
@@ -66,7 +66,7 @@ func Load() *Config {
 		log.Printf("Config file loaded: %s", viper.ConfigFileUsed())
 	}
 
-	// Чтение .env файла если существует
+	// Read .env file if exists
 	viper.SetConfigName(".env")
 	viper.SetConfigType("env")
 	if err := viper.MergeInConfig(); err == nil {
@@ -112,7 +112,7 @@ func setDefaults() {
 }
 
 func validateConfig(config *Config) error {
-	// Валидация обязательных полей
+	// Validate required fields
 	if config.Database.Host == "" {
 		return fmt.Errorf("database host is required")
 	}
@@ -143,22 +143,22 @@ func ValidateConfig(cfg *Config) error {
 	return validateConfig(cfg)
 }
 
-// GetString возвращает строковое значение конфигурации
+// GetString returns string configuration value
 func GetString(key string) string {
 	return viper.GetString(key)
 }
 
-// GetInt возвращает целочисленное значение конфигурации
+// GetInt returns integer configuration value
 func GetInt(key string) int {
 	return viper.GetInt(key)
 }
 
-// GetBool возвращает булево значение конфигурации
+// GetBool returns boolean configuration value
 func GetBool(key string) bool {
 	return viper.GetBool(key)
 }
 
-// IsSet проверяет, установлено ли значение
+// IsSet checks if value is set
 func IsSet(key string) bool {
 	return viper.IsSet(key)
 }
@@ -180,12 +180,12 @@ func logConfig(config *Config) {
 	log.Printf("Logging: level=%s", config.Logging.Level)
 }
 
-// LoadFromEnv загружает конфигурацию только из переменных окружения
+// LoadFromEnv loads configuration only from environment variables
 func LoadFromEnv() *Config {
-	// Сброс Viper
+	// Reset Viper
 	viper.Reset()
 
-	// Настройка для чтения только ENV
+	// Setup for reading only ENV
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
@@ -208,18 +208,18 @@ func LoadFromEnv() *Config {
 	return &config
 }
 
-// LoadFromFile загружает конфигурацию только из файла
+// LoadFromFile loads configuration only from file
 func LoadFromFile(filename string) *Config {
-	// Сброс Viper
+	// Reset Viper
 	viper.Reset()
 
-	// Настройка для чтения файла
+	// Setup for reading file
 	viper.SetConfigFile(filename)
 
 	// Set default values
 	setDefaults()
 
-	// Чтение файла
+	// Read file
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file %s: %v", filename, err)
 	}
@@ -240,7 +240,7 @@ func LoadFromFile(filename string) *Config {
 	return &config
 }
 
-// GetConfigSource возвращает источник конфигурации
+// GetConfigSource returns configuration source
 func GetConfigSource() string {
 	if viper.ConfigFileUsed() != "" {
 		return "file: " + viper.ConfigFileUsed()
