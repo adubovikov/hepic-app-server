@@ -8,35 +8,35 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// JWTAuth middleware для проверки JWT токенов
+// JWTAuth middleware for JWT token validation
 func JWTAuth(jwtSecret string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			// Получение токена из заголовка Authorization
+			// Get token from Authorization header
 			authHeader := c.Request().Header.Get("Authorization")
 			if authHeader == "" {
 				return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 					"success": false,
-					"error":   "Токен авторизации не предоставлен",
+					"error":   "Authorization token not provided",
 				})
 			}
 
-			// Проверка формата Bearer token
+			// Check Bearer token format
 			tokenParts := strings.Split(authHeader, " ")
 			if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
 				return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 					"success": false,
-					"error":   "Неверный формат токена авторизации",
+					"error":   "Invalid authorization token format",
 				})
 			}
 
 			tokenString := tokenParts[1]
 
-			// Парсинг и валидация токена
+			// Parse and validate token
 			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-				// Проверка метода подписи
+				// Check signing method
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-					return nil, echo.NewHTTPError(http.StatusUnauthorized, "Неверный метод подписи токена")
+					return nil, echo.NewHTTPError(http.StatusUnauthorized, "Invalid token signing method")
 				}
 				return []byte(jwtSecret), nil
 			})
@@ -44,28 +44,28 @@ func JWTAuth(jwtSecret string) echo.MiddlewareFunc {
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 					"success": false,
-					"error":   "Неверный токен авторизации",
+					"error":   "Invalid authorization token",
 				})
 			}
 
-			// Проверка валидности токена
+			// Check token validity
 			if !token.Valid {
 				return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 					"success": false,
-					"error":   "Токен авторизации недействителен",
+					"error":   "Authorization token is invalid",
 				})
 			}
 
-			// Извлечение claims
+			// Extract claims
 			claims, ok := token.Claims.(jwt.MapClaims)
 			if !ok {
 				return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 					"success": false,
-					"error":   "Неверный формат токена",
+					"error":   "Invalid token format",
 				})
 			}
 
-			// Сохранение информации о пользователе в контексте
+			// Save user information in context
 			if userID, ok := claims["user_id"].(float64); ok {
 				c.Set("user_id", int(userID))
 			}
@@ -79,7 +79,7 @@ func JWTAuth(jwtSecret string) echo.MiddlewareFunc {
 	}
 }
 
-// AdminOnly middleware для проверки прав администратора
+// AdminOnly middleware for admin rights validation
 func AdminOnly() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -87,7 +87,7 @@ func AdminOnly() echo.MiddlewareFunc {
 			if role != "admin" {
 				return c.JSON(http.StatusForbidden, map[string]interface{}{
 					"success": false,
-					"error":   "Недостаточно прав доступа",
+					"error":   "Insufficient access rights",
 				})
 			}
 			return next(c)

@@ -5,10 +5,10 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-// CORSConfig настройки CORS
+// CORSConfig CORS settings
 func CORSConfig() middleware.CORSConfig {
 	return middleware.CORSConfig{
-		AllowOrigins: []string{"*"}, // В продакшене указать конкретные домены
+		AllowOrigins: []string{"*"}, // In production specify specific domains
 		AllowMethods: []string{
 			echo.GET,
 			echo.POST,
@@ -29,6 +29,6 @@ func CORSConfig() middleware.CORSConfig {
 			echo.HeaderContentType,
 		},
 		AllowCredentials: true,
-		MaxAge:          86400, // 24 часа
+		MaxAge:          86400, // 24 hours
 	}
 }
